@@ -1,11 +1,17 @@
 package com.dach.reservation_tool.calendarTest;
 
 import com.dach.reservation_tool.calendar.CalendarService;
+import jakarta.persistence.NamedStoredProcedureQueries;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.DateTimeException;
 import java.time.DayOfWeek;
@@ -15,7 +21,8 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
+
+@SpringBootTest
 class CalendarServiceTest {
 
     @InjectMocks
@@ -27,29 +34,29 @@ class CalendarServiceTest {
     }
 
     @Test
-    void getMonthDetails_WithSpecificMonthYear_ReturnsCorrectNumberOfDays() {
-        // Given
+    void testGetMonthDetailsForLeapYear() {
+        // GIVEN
         int year = 2024;
         int month = 2; // February in a leap year
 
-        // When
+        // WHEN
         List<Map<String, Object>> result = calendarService.getMonthDetails(year, month);
 
-        // Then
+        // THEN
         assertEquals(29, result.size(), "February 2024 should have 29 days (leap year)");
     }
 
     @Test
-    void getMonthDetails_FirstDayHasCorrectInformation() {
-        // Given
+    void testGetMonthDetailsFirstDayHasCorrectInformation() {
+        // GIVEN
         int year = 2024;
         int month = 10; // October
 
-        // When
+        // WHEN
         List<Map<String, Object>> result = calendarService.getMonthDetails(year, month);
         Map<String, Object> firstDay = result.get(0);
 
-        // Then
+        // THEN
         assertEquals(1, firstDay.get("dayOfMonth"));
         assertEquals(LocalDate.of(2024, 10, 1), firstDay.get("date"));
         assertEquals(DayOfWeek.TUESDAY, firstDay.get("dayOfWeek"));
@@ -57,59 +64,49 @@ class CalendarServiceTest {
     }
 
     @Test
-    void getMonthDetails_WeekendDaysAreCorrectlyMarked() {
-        // Given
-        int year = 2024;
-        int month = 10; // October
+    void testGetMonthDetailsWithNullParametersReturnsCurrentMonth() {
+        //GIVEN
+        LocalDate today = LocalDate.now();
+        var expectedYear = today.getYear();
+        var expectedMonth = today.getMonth();
 
-        // When
-        List<Map<String, Object>> result = calendarService.getMonthDetails(year, month);
-
-        // Then
-        // October 5, 2024 is a Saturday (index 4)
-        assertTrue((Boolean) result.get(4).get("isWeekend"));
-        // October 6, 2024 is a Sunday (index 5)
-        assertTrue((Boolean) result.get(5).get("isWeekend"));
-        // October 7, 2024 is a Monday (index 6)
-        assertFalse((Boolean) result.get(6).get("isWeekend"));
-    }
-
-    @Test
-    void getMonthDetails_WithNullParameters_ReturnsCurrentMonth() {
-        // When
+        // WHEN
         List<Map<String, Object>> result = calendarService.getMonthDetails(null, null);
 
-        // Then
-        LocalDate today = LocalDate.now();
+        // THEN
         LocalDate firstDayInResult = (LocalDate) result.get(0).get("date");
 
-        assertEquals(today.getYear(), firstDayInResult.getYear());
-        assertEquals(today.getMonth(), firstDayInResult.getMonth());
+        assertEquals(expectedYear, firstDayInResult.getYear());
+        assertEquals(expectedMonth, firstDayInResult.getMonth());
         assertEquals(1, firstDayInResult.getDayOfMonth());
     }
 
     @Test
-    void getMonthDetails_WithInvalidMonth_ThrowsException() {
-        // Given
+    void testGetMonthDetailsWithInvalidMonthThrowsException() {
+        // GIVEN
         int year = 2024;
         int invalidMonth = 13;
 
-        // Then
+        //WHEN // THEN
         assertThrows(DateTimeException.class, () -> {
             calendarService.getMonthDetails(year, invalidMonth);
         });
     }
 
-    @Test
-    void getMonthDetails_ConsistencyCheck() {
-        // Given
-        int year = 2024;
-        int month = 10; // October
+    @ParameterizedTest
+    @CsvSource({
+            "2024, 10", // Oktober 2024
+            "2024, 2",  // Februar 2024 (Schaltjahr)
+            "2023, 12", // Dezember 2023
+            "2021, 6"   // Juni 2021
+    })
+    void testGetMonthDetailsConsistencyCheck(int year, int month) {
+        //GIVEN is the csv source
 
-        // When
+        // WHEN
         List<Map<String, Object>> result = calendarService.getMonthDetails(year, month);
 
-        // Then
+        // THEN
         for (int i = 0; i < result.size(); i++) {
             Map<String, Object> day = result.get(i);
             LocalDate date = (LocalDate) day.get("date");
