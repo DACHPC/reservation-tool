@@ -10,32 +10,6 @@ class ReservationTest {
     }
 
     @Test
-    void testIdSetterAndSetter() {
-        // Arrange
-        TestReservation reservation = new TestReservation();
-        String testId = "test-id";
-
-        // Act
-        reservation.setId(testId);
-
-        // Assert
-        assertEquals(testId, reservation.getId(), "The ID should be set and retrieved correctly.");
-    }
-
-    @Test
-    void testIdGetter() {
-        // Arrange
-        TestReservation reservation = new TestReservation();
-        String testId = "test-id";
-
-        // Act
-        reservation.setId(testId);  // Not testing the setter here, just setting up for the getter test
-
-        // Assert
-        assertEquals(testId, reservation.getId(), "The ID should be retrieved correctly.");
-    }
-
-    @Test
     void testId() {
         // Arrange
         TestReservation reservation1 = new TestReservation();
