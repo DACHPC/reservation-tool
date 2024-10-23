@@ -10,7 +10,7 @@ class ReservationTest {
     }
 
     @Test
-    void testIdSetter() {
+    void testIdSetterAndSetter() {
         // Arrange
         TestReservation reservation = new TestReservation();
         String testId = "test-id";
@@ -19,7 +19,7 @@ class ReservationTest {
         reservation.setId(testId);
 
         // Assert
-        assertEquals(testId, reservation.getId(), "The ID should be set correctly.");
+        assertEquals(testId, reservation.getId(), "The ID should be set and retrieved correctly.");
     }
 
     @Test
