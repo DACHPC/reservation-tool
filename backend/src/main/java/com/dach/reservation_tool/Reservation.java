@@ -18,4 +18,5 @@ public class Reservation<ID> {
         @Column(name = "id", nullable = false, length = 255)
         @GeneratedValue(strategy = GenerationType.UUID)
         private ID id;
+        private Reservable reservable;
 }
