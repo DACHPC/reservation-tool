@@ -13,7 +13,7 @@ import jakarta.persistence.MappedSuperclass;
 @Getter
 @Setter
 @EqualsAndHashCode
-abstract class Reservation<ID> {
+public class Reservation<ID> {
         @Id
         @Column(name = "id", nullable = false, length = 255)
         @GeneratedValue(strategy = GenerationType.UUID)
